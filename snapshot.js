@@ -9,17 +9,33 @@ app.get("/", (req, res) => {
     res.send("Hello Percy!");
 });
 
-app.listen(port, async () => {
+// Start the Express server
+const server = app.listen(port, async () => {
     console.log(`Example app listening on port ${port}`);
 
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
+    try {
+        // Launch Puppeteer browser instance
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
 
-    await page.goto(`http://localhost:${port}`, { waitUntil: 'networkidle0' });
+        // Navigate to the local server's URL
+        await page.goto(`http://localhost:${port}`, { waitUntil: 'networkidle0' });
 
-    // Take a Percy snapshot
-    await percySnapshot(page, 'Home Page');
+        // Take a Percy snapshot
+        await percySnapshot(page, 'Home Page', {
+            widths: [375, 768, 1280], // Example widths for responsive testing
+            minHeight: 1024           // Minimum height for the snapshot
+        });
 
-    await browser.close();
-    process.exit();
+        // Close the browser
+        await browser.close();
+    } catch (error) {
+        console.error('Error taking Percy snapshot:', error);
+    } finally {
+        // Ensure the server is closed after the snapshot
+        server.close(() => {
+            console.log('Server closed.');
+            process.exit();
+        });
+    }
 });
