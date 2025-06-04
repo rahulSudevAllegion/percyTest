@@ -15,10 +15,16 @@ const server = app.listen(port, async () => {
     console.log(`Example app listening on port ${port}`);
 
     try {
-        // Launch Puppeteer
+        // Launch Puppeteer with executable path explicitly set
         const browser = await puppeteer.launch({
-            headless: true, // Run in headless mode
-            args: ['--no-sandbox', '--disable-setuid-sandbox'], // Ensure compatibility with CI environments
+            headless: 'new', // Use new headless mode
+            args: [
+                '--no-sandbox', 
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ], // Ensure compatibility with CI environments
+            ignoreDefaultArgs: ['--disable-extensions'],
         });
 
         const page = await browser.newPage();
